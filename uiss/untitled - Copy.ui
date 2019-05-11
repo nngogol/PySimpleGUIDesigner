@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>541</width>
+    <height>636</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>5</y>
+      <width>298</width>
+      <height>166</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_4">
+     <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>car method</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="r2">
+            <property name="text">
+             <string>second</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="r1">
+            <property name="text">
+             <string>none</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QRadioButton" name="r3">
+            <property name="text">
+             <string>third</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="r4">
+            <property name="text">
+             <string>first</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>jet method</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="rr3">
+            <property name="text">
+             <string>third</string>
+            </property>
+            <property name="autoRepeat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="rr1">
+            <property name="text">
+             <string>first</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="rr2">
+            <property name="text">
+             <string>second</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <property name="autoRepeat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkBox">
+         <property name="text">
+          <string>cool flag</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="stat">
+         <property name="text">
+          <string>дай статус</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <layout class="QVBoxLayout" name="dasf">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>human method</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="r1_2">
+           <property name="text">
+            <string>1</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="r4_2">
+           <property name="text">
+            <string>2</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="r2_2">
+           <property name="text">
+            <string>3</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="r3_2">
+           <property name="text">
+            <string>4</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>11</y>
+      <width>211</width>
+      <height>73</height>
+     </rect>
+    </property>
+    <widget class="QPushButton" name="q4">
+     <property name="geometry">
+      <rect>
+       <x>109</x>
+       <y>49</y>
+       <width>99</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>q4 button</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="q3">
+     <property name="geometry">
+      <rect>
+       <x>109</x>
+       <y>22</y>
+       <width>99</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>q3 button</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="q1">
+     <property name="geometry">
+      <rect>
+       <x>3</x>
+       <y>22</y>
+       <width>100</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>q1 button</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="q2">
+     <property name="geometry">
+      <rect>
+       <x>3</x>
+       <y>49</y>
+       <width>100</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>q2 button</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>87</x>
+       <y>3</y>
+       <width>37</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Кнопки</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>25</x>
+      <y>195</y>
+      <width>476</width>
+      <height>396</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Tab 1</string>
+     </attribute>
+     <widget class="QTimeEdit" name="timeEdit">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>230</y>
+        <width>106</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>4</y>
+        <width>37</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Кнопки</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="q1_2">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>23</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>q1 button</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButton">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>52</y>
+        <width>82</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>RadioButton</string>
+      </property>
+     </widget>
+     <widget class="QSlider" name="horizontalSlider">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>152</y>
+        <width>84</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>19</x>
+        <y>103</y>
+        <width>160</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout"/>
+     </widget>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="geometry">
+       <rect>
+        <x>14</x>
+        <y>393</y>
+        <width>181</width>
+        <height>106</height>
+       </rect>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Tab 1</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tab 2</string>
+       </attribute>
+      </widget>
+     </widget>
+     <widget class="QDateTimeEdit" name="dateTimeEdit">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>282</y>
+        <width>106</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSlider" name="verticalSlider">
+      <property name="geometry">
+       <rect>
+        <x>289</x>
+        <y>174</y>
+        <width>16</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>34</x>
+        <y>508</y>
+        <width>120</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
+     </widget>
+     <widget class="QDateEdit" name="dateEdit">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>256</y>
+        <width>106</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="doubleSpinBox">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>126</y>
+        <width>91</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="spinBox">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>100</y>
+        <width>91</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_2">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>76</y>
+        <width>71</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>CheckBox</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>19</x>
+        <y>13</y>
+        <width>160</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout"/>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>24</x>
+        <y>193</y>
+        <width>160</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_6"/>
+     </widget>
+     <widget class="QGroupBox" name="rewr">
+      <property name="geometry">
+       <rect>
+        <x>24</x>
+        <y>288</y>
+        <width>120</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>GroupBox3123</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>Tab 2</string>
+     </attribute>
+     <layout class="QGridLayout" name="gridLayout_11">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="1" column="0">
+         <widget class="QPushButton" name="q1_3">
+          <property name="text">
+           <string>q1 button</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Кнопки</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="q2_2">
+          <property name="text">
+           <string>q2 button</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="q4_2">
+          <property name="text">
+           <string>q4 button</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="q3_2">
+          <property name="text">
+           <string>q3 button</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>55</x>
+      <y>95</y>
+      <width>104</width>
+      <height>64</height>
+     </rect>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;greg&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;greg&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
