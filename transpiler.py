@@ -10,7 +10,6 @@ IMPLEMENTED_CONTROL_ELEMENTS = [
 isCrate 		= lambda item: type(item) in IMPLEMENTED_CONTAINERS
 isNormalWidget 	= lambda item: type(item) in IMPLEMENTED_CONTROL_ELEMENTS
 
-
 def empty_widget(GUItype='tk'):
 	# dummy elemets for EMPTY SPOTS in QGridLayout
 	if GUItype == 'tk':
@@ -21,7 +20,6 @@ def empty_widget(GUItype='tk'):
 		raise Exception("Not IMPLEMENTED")
 	if GUItype == 'wx':
 		raise Exception("Not IMPLEMENTED")
-
 
 def get_chidrens(node):
 	elements = []
@@ -123,7 +121,7 @@ class Pepe(object):
 		if self.nodes:
 			childrens = ', [' + ', '.join([str(i) for i in self.nodes]) + ']'
 		return f"['{self.title}{ob}'{childrens}]"
-def parseQMenu_obj(qmenu, lvl=0):
+def _parseQMenu_obj(qmenu, lvl=0):
 	try:
 		actions 	= qmenu.actions()
 		pepes = []
@@ -136,7 +134,7 @@ def parseQMenu_obj(qmenu, lvl=0):
 				# вывести вложенные менюшки
 				menus = []
 				try:
-					menus = parseQMenu_obj(a.menu(), lvl+1)
+					menus = _parseQMenu_obj(a.menu(), lvl+1)
 				except Exception as e:
 					pass
 				pepe.nodes = menus
@@ -148,16 +146,90 @@ def parseQMenu_obj(qmenu, lvl=0):
 	except Exception as e: # листок
 		pass
 		return Pepe(qmenu.title())
+# ▲
 def make_psg_menu(qmenubar: QMenuBar, menubar_oneline=False):
-	res = parseQMenu_obj(qmenubar)
+	res = _parseQMenu_obj(qmenubar)
 	res = '[' + ',\n'.join(['[' + i.nest(menubar_oneline) + ']' for i in res]) + ']'
 	return res
+# ▲
+def _tab_da_shit(make_tabs, psg_rows, is_top, my_tab = '\t'):
+	# ▲     Add tabulation. I use '\t', not 4 spaces '    '
+	final = my_tab + f',\n{my_tab}'.join(psg_rows)
+	# tabs
+	space = ''
+	if make_tabs != -1 and make_tabs > 0:
+		space = my_tab * make_tabs
+		final = '\n'.join([f'{space}{i}' for i in final.split('\n')])
 
-# ======
-# ======
-# ======
+	if is_top:
+		# tabs
+		if make_tabs != -1 and make_tabs > 0:
+			return f'[\n{final}{space}\n]'
+		else:
+			return f'[\n{final}\n]'
+	else:
+		if make_tabs != -1 and make_tabs > 0:
+			return final
+		else:
+			return space + final
+# ▲
+def _compile_VBbox(parent_node: QVBoxLayout, is_top=False, make_tabs=-1, GUItype='tk', pass_bad_widgets=False):
 
+	hbox_items = get_chidrens(parent_node)
 
+	psg_rows = []
+	for index, hbox_item in enumerate(hbox_items):
+
+		if isNormalWidget(hbox_item) or type(hbox_item) is QGridLayout:
+
+			el = '[' + to_psg_element(hbox_item, GUItype=GUItype,
+									  pass_bad_widgets=pass_bad_widgets) + ']'
+			psg_rows.append(el)
+
+		elif type(hbox_item) is QHBoxLayout:
+
+			elements = get_chidrens(hbox_item)
+			psg_elemets = [to_psg_element(
+				qt_widget, GUItype=GUItype, pass_bad_widgets=pass_bad_widgets) for qt_widget in elements]
+			el = '[' + ', '.join(psg_elemets) + ']'
+			psg_rows.append(el)
+
+		else:
+			raise Exception(f'What is {type(hbox_item)}?')
+	
+	return _tab_da_shit(make_tabs, psg_rows, is_top)
+# ▲
+def _compile_GridLayout(parent_node: QGridLayout, is_top=False, make_tabs=-1, GUItype='tk', pass_bad_widgets=False):
+
+	psg_elemets, psg_rows = [], []
+	# ▲     Iterate thought grid
+	for i in range(parent_node.rowCount()):
+		psg_elemets = []
+		for j in range(parent_node.columnCount()):
+			# get widget
+			res = parent_node.itemAtPosition(i, j)
+			res = res.widget() if type(res) is QWidgetItem else res
+
+			# this if means, that:
+			# if current element is thesame as previuos element,
+			# than current element has grid_span > 1,
+			# and we don't need to parse,
+			# because we already did it in previous step (loop step)
+			if j > 0 and res == psg_elemets[-1][0]:
+				continue
+
+			if res is not None:
+				# how can I use here this: size=(widthedst_elements[j],1)
+				psg_elemets.append((res, to_psg_element(
+					res, GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)))
+			else:
+				# add dummy "empty lable"
+				psg_elemets.append((res, empty_widget(GUItype=GUItype)))
+
+		el = '[' + ', '.join([i[1] for i in psg_elemets]) + ']'
+		psg_rows.append(el)
+
+	return _tab_da_shit(make_tabs, psg_rows, is_top)
 
 def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, pure=False, menubar_oneline=False):
 
@@ -170,7 +242,6 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 
 	idd = normal_item.objectName()
 	res = type(normal_item)
-	print(f'res = {res}')
 
 	#                  _        _
 	#                 | |      (_)
@@ -181,8 +252,8 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 
 
 	if type(normal_item) in [QVBoxLayout, QHBoxLayout, QGridLayout]:
-		compiler = compile_VBbox if type(
-			normal_item) != QGridLayout else compile_GridLayout
+		compiler = _compile_VBbox if type(
+			normal_item) != QGridLayout else _compile_GridLayout
 		ui = compiler(normal_item, is_top=False, make_tabs=2,
 					  GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)
 		return ui if pure else f"sg.Frame('', {size}key='{idd}', layout = [\n{ui}\n])"
@@ -214,10 +285,10 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 		children = normal_item.children()[0]
 
 		if type(children) is QGridLayout:
-			ui = compile_GridLayout(children,   make_tabs=2,
+			ui = _compile_GridLayout(children,   make_tabs=2,
 				GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)
 		elif type(children) in [QVBoxLayout, QHBoxLayout]:
-			ui = compile_VBbox(children,        make_tabs=2,
+			ui = _compile_VBbox(children,        make_tabs=2,
 				GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)
 		else:
 			raise Exception(f'How do I parse {children}')
@@ -229,8 +300,6 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 
 	# menu
 	elif type(normal_item) is QMenuBar:
-
-
 		qmenubar_layout = make_psg_menu(normal_item, menubar_oneline)
 		return f"qmenubar_layout = {qmenubar_layout}\n\nsg.Menu(qmenubar_layout, key='{idd}')"
 
@@ -330,89 +399,6 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 			return empty_widget(GUItype='tk')
 		else:
 			raise Exception(f"HOWTO compile {type(normal_item)}?")
-
-def _tab_it(make_tabs, psg_rows, is_top):
-
-	# ▲     Add tabulation. I use '\t', not '    '
-	my_tab = '\t'
-	final = my_tab + f',\n{my_tab}'.join(psg_rows)
-	# tabs
-	space = ''
-	if make_tabs != -1 and make_tabs > 0:
-		space = my_tab * make_tabs
-		final = '\n'.join([f'{space}{i}' for i in final.split('\n')])
-
-	if is_top:
-		# tabs
-		if make_tabs != -1 and make_tabs > 0:
-			return f'[\n{final}{space}\n]'
-		else:
-			return f'[\n{final}\n]'
-	else:
-		if make_tabs != -1 and make_tabs > 0:
-			return final
-		else:
-			return space + final
-# ▲
-def compile_VBbox(parent_node: QVBoxLayout, is_top=False, make_tabs=-1, GUItype='tk', pass_bad_widgets=False):
-
-	hbox_items = get_chidrens(parent_node)
-
-	psg_rows = []
-	for index, hbox_item in enumerate(hbox_items):
-
-		res = type(hbox_item)
-
-		if isNormalWidget(hbox_item) or type(hbox_item) is QGridLayout:
-
-			el = '[' + to_psg_element(hbox_item, GUItype=GUItype,
-									  pass_bad_widgets=pass_bad_widgets) + ']'
-			psg_rows.append(el)
-
-		elif type(hbox_item) is QHBoxLayout:
-
-			elements = get_chidrens(hbox_item)
-			psg_elemets = [to_psg_element(
-				qt_widget, GUItype=GUItype, pass_bad_widgets=pass_bad_widgets) for qt_widget in elements]
-			el = '[' + ', '.join(psg_elemets) + ']'
-			psg_rows.append(el)
-
-		else:
-			raise Exception(f'What is {type(hbox_item)}?')
-	
-	return _tab_it(make_tabs, psg_rows, is_top)
-# ▲
-def compile_GridLayout(parent_node: QGridLayout, is_top=False, make_tabs=-1, GUItype='tk', pass_bad_widgets=False):
-
-	psg_elemets, psg_rows = [], []
-	# ▲     Iterate thought grid
-	for i in range(parent_node.rowCount()):
-		psg_elemets = []
-		for j in range(parent_node.columnCount()):
-			# get widget
-			res = parent_node.itemAtPosition(i, j)
-			res = res.widget() if type(res) is QWidgetItem else res
-
-			# this if means, that:
-			# if current element is thesame as previuos element,
-			# than current element has grid_span > 1,
-			# and we don't need to parse,
-			# because we already did it in previous step (loop step)
-			if j > 0 and res == psg_elemets[-1][0]:
-				continue
-
-			if res is not None:
-				# how can I use here this: size=(widthedst_elements[j],1)
-				psg_elemets.append((res, to_psg_element(
-					res, GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)))
-			else:
-				# add dummy "empty lable"
-				psg_elemets.append((res, empty_widget(GUItype=GUItype)))
-
-		el = '[' + ', '.join([i[1] for i in psg_elemets]) + ']'
-		psg_rows.append(el)
-
-	return _tab_it(make_tabs, psg_rows, is_top)
 
 
 
