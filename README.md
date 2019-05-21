@@ -1,6 +1,6 @@
 # PySimeplGUI Designer
 
-**Install**:
+## Install:
 ```bash
 pip install PySimpleGUIDesigner
 ```
@@ -8,17 +8,17 @@ pip install PySimpleGUIDesigner
 ## Usage
 Run GUI:
 ```bash
-psg_des
+PySimpleGUIDesigner
 ```
 
 Use options:
 ```bash
-psg_des --xmlfile="~/folder1/test.ui" --objname="somegroupBox"
+PySimpleGUIDesigner --xmlfile="~/folder1/test.ui" --objname="somegroupBox"
 ```
 
 Help:
 ```bash
-psg_des --help
+PySimpleGUIDesigner --help
 ```
 Output:
 ```
