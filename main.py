@@ -1,16 +1,16 @@
-import PySimpleGUI as sg
-import click
-from transpiler import *
-import re
-from re import compile as regex, finditer
-import sys
-import os
-import subprocess
-import json
+from .boilerplate_psg import boilerplate_
 from platform import system as gimme_system
+from re import compile as regex, finditer
 from shutil import copy as copyfile
+import click
+import json
+import os
+import PySimpleGUI as sg
+import re
+import subprocess
+import sys
+from .transpiler import *
 cd = os.path.dirname(os.path.abspath(__file__))
-
 
 def build_boilerplate(layout='[[]]', mouse_clicks=False, keys=False):
 	# create a str with PSG code
@@ -24,25 +24,21 @@ def build_boilerplate(layout='[[]]', mouse_clicks=False, keys=False):
 			r'(RButton|ReadButton|B)\([\'\"][\w\ \_\d]*[\'\"],?\s?((key)\s*=\s*[\'\"]([\w\ \_\d]+?)[\'\"])')
 		# find all keys in you ui
 		keys = [i.group(4) for i in finditer(regex_pattern, ui)]
-		return boilerplate.replace('mice', do_callbacks(keys))
+		return boilerplate.replace('# ~TARGET', do_callbacks(keys))
 
 	def do_keys_events(ui, boilerplate):
 		# find regex pattern from all elements
 		regex_pattern = regex(r'(key)\s*=\s*[\'\"]([\w\d]+?)[\'\"]')
 		# find all keys in you ui
 		keys = [i.group(2) for i in finditer(regex_pattern, ui)]
-		return boilerplate.replace('keys', do_callbacks(keys))
-
-	def from_file(file_CODENAME):
-		with open(f'resources/boilerplate_{file_CODENAME}.py', 'r', encoding='utf-8') as ff:
-			return ff.read()
+		return boilerplate.replace('# ~TARGET', do_callbacks(keys))
 
 	if not mouse_clicks and not keys:
-		text = from_file('basic')
+		text = boilerplate_
 	elif mouse_clicks:
-		text = do_mice_events(layout, from_file('clicks'))
+		text = do_mice_events(layout, boilerplate_)
 	elif keys:
-		text = do_keys_events(layout, from_file('keys'))
+		text = do_keys_events(layout, boilerplate_)
 
 	return text.replace('[[]]', layout)
 
@@ -104,7 +100,7 @@ def run_gui():
 	#  |___/
 
 	ralign = {'size': (5, 2), "justification": 'r'}
-	input_frame = [[sg.T('xml\nfile', **ralign), 			sg.In(key='xmlfile', change_submits = True), sg.FileBrowse(target='xmlfile'), sg.InputCombo(values=[''], key='objs', size=(40,1))],
+	input_frame = [[sg.T('xml\nfile', **ralign), 			sg.In(key='xmlfile', change_submits=True), sg.FileBrowse(target='xmlfile'), sg.InputCombo(values=[''], key='objs', size=(40,1), change_submits=True)],
 				   # [)],
 				   [sg.T('Target\nobject name', **ralign), 	sg.In(key='objname'),	  sg.B('compile'), sg.B('compile++'),
 					sg.Radio('all keys', 1, True, key='r2_keys'), sg.Radio('mouse clicks', 1, key='r2_mouse_clicks')]]
@@ -140,6 +136,8 @@ def run_gui():
 
 		if event in (None, 'Exit'):
 			break
+		if event == 'objs':
+			window.Element('objname').Update(values['objs'])
 		if event == 'Clear':
 			window.Element('psg_ui_output').Update('')
 		if event == 'compile':
@@ -154,7 +152,7 @@ def run_gui():
 	window.Close()
 
 @click.command()
-@click.option('-x', '--run', default=False, is_flag=True, help='just run gui example')
+@click.option('-x', '--run', default=True, is_flag=True, help='just run gui example')
 @click.option('-xmlfile', type=click.Path(exists=True), help='abs path to ui file')
 @click.option('-objname', type=str, help='object name of target container')
 @click.option('-nobadwidgets', default=True, is_flag=True, help='forget about bad widgets. Default - True')
@@ -186,5 +184,4 @@ def cli(run, xmlfile, objname, nobadwidgets, outputfile, pp_mouse, pp_keys):
 			click.echo(click.style(str(e), bg='black', fg='red'))
 
 if __name__ == '__main__':
-	# run_gui()
 	cli()
