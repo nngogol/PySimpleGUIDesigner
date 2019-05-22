@@ -39,6 +39,8 @@ Options:
 ---
 ## Usage (source code)
 
+Download this repo, cd into directory.
+
 Run gui:
 ```bash
 python3 main.py
