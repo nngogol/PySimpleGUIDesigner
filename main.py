@@ -1,4 +1,4 @@
-from .boilerplate_psg import boilerplate_
+from boilerplate_psg import boilerplate_
 from platform import system as gimme_system
 from re import compile as regex, finditer
 from shutil import copy as copyfile
@@ -9,7 +9,7 @@ import PySimpleGUI as sg
 import re
 import subprocess
 import sys
-from .transpiler import *
+from transpiler import *
 cd = os.path.dirname(os.path.abspath(__file__))
 
 def build_boilerplate(layout='[[]]', mouse_clicks=False, keys=False):
@@ -90,6 +90,34 @@ def just_compile(values):
 
 
 def run_gui():
+	def clear_empty_top_widget(ui):
+		'''
+		clear ui to easyily for coping functionality (ctrl+c)
+		'''
+		
+		'''
+		# case1
+		sg.Frame('', key='gridLayout', layout = [
+					[sg.RButton('PushButton', key='pushButton'), sg.RButton('PushButton', key='pushButton_2')]
+		])
+		'''
+		first_line = ui.split('\n')[0]
+		regex_matched = re.compile(r"^sg.Frame\('',\s?key='.*',\slayout\s=\s\[").match(first_line)
+		if regex_matched and ui[-2:] == '])':
+			new_ui = '[\n' + '\n'.join(ui.split('\n')[1:]).strip()
+			return new_ui[:-1]
+		return ui
+
+	def update_clear_btn(my_window, my_values, real_value=''):
+		objname = my_values['objname'] if real_value == '' else real_value
+		all_object_names_in_combo = my_window.Element('objs').Values
+
+		if my_values['xmlfile'] and objname and objname in all_object_names_in_combo:
+			my_window.Element('compile_btn').Update(disabled=False)
+			my_window.Element('compilepp_btn').Update(disabled=False)
+		else:
+			my_window.Element('compile_btn').Update(disabled=True)
+			my_window.Element('compilepp_btn').Update(disabled=True)
 	#              _
 	#             (_)
 	#   __ _ _   _ _
@@ -99,55 +127,95 @@ def run_gui():
 	#   __/ |
 	#  |___/
 
-	ralign = {'size': (5, 2), "justification": 'r'}
-	input_frame = [[sg.T('xml\nfile', **ralign), 			sg.In(key='xmlfile', change_submits=True), sg.FileBrowse(target='xmlfile'), sg.InputCombo(values=[''], key='objs', size=(40,1), change_submits=True)],
-				   # [)],
-				   [sg.T('Target\nobject name', **ralign), 	sg.In(key='objname'),	  sg.B('compile'), sg.B('compile++'),
-					sg.Radio('all keys', 1, True, key='r2_keys'), sg.Radio('mouse clicks', 1, key='r2_mouse_clicks')]]
+	ralign = {'size': (16, 3), "justification": 'r'}
+	input_frame = [[sg.T('\nxml file', **ralign), 					sg.In(key='xmlfile', change_submits=True),	sg.FileBrowse(target='xmlfile'), 	sg.T('possible\nobject names', justification='r'), sg.InputCombo(values=[''], key='objs', size=(40,1), change_submits=True)],
+				   [sg.T('\nTarget object name', **ralign), 		sg.In(key='objname', change_submits=True),	sg.B('compile', key='compile_btn', disabled=True), sg.B('compile++', key='compilepp_btn', disabled=True),
+					sg.Radio('all keys', 1, True, key='r2_keys'), 	sg.Radio('mouse clicks', 1, key='r2_mouse_clicks')]]
 	layout = [
 		[sg.Frame('Input data', input_frame)],
-		[sg.B('Clear'), sg.CB(
-			'forget about bad widgets', True, key='no_bad_widgets')],
+		[sg.B('Clear'),
+			sg.CB('forget about bad widgets', True, key='no_bad_widgets'),
+			sg.CB('empty top widget', True, key='empty_top_widget')],
 		[sg.Multiline(key='psg_ui_output', size=(120, 14))]
 	]
 	window = sg.Window('Transpiler', layout,
 					   auto_size_buttons=False,
 					   default_button_element_size=(10, 1))
 
+
 	while True:             # Event Loop
 		event, values = window.Read()
-		# click.echo(event, values)
-
-		if event == 'xmlfile':
+		
+		if event in (None, 'Exit'): break
+		elif event == 'xmlfile':
 			myxml_file = values['xmlfile']
 			if os.path.exists(myxml_file):
 
 				# get xml
 				with open(myxml_file, 'r', encoding='utf-8') as ff: xml_code = ff.read()
-				# filter object names
-				listvalues = [i.group(1) for i in re.finditer(re.compile(r"^[ \s]{1,}<widget\s.*?\bname=\"(.+)\"\/?>", re.MULTILINE), xml_code)]
-				# set it
-				if listvalues:
-					window.Element('objs').Update(values=
-								[i
-								for i in listvalues
-								if  'label' != i[:6] and
-									'pushButton' != i[:10]])
 
-		if event in (None, 'Exit'):
-			break
-		if event == 'objs':
-			window.Element('objname').Update(values['objs'])
-		if event == 'Clear':
-			window.Element('psg_ui_output').Update('')
-		if event == 'compile':
-			psg_ui = just_compile(values)
+				# filter object names
+				widgets_regexpattern = re.compile(r"^[ \s]{1,}<(widget)\s?.*?\s?name=\"(.+)\"\/?>", re.MULTILINE)
+				layouts_regexpattern = re.compile(r"^[ \s]{1,}<(layout)\s?.*?\s?name=\"(.+)\"\/?>", re.MULTILINE)
+				widgets = [i.group(2) for i in re.finditer(widgets_regexpattern, xml_code)]
+				layouts = [i.group(2) for i in re.finditer(layouts_regexpattern, xml_code)]
+
+				combo_items = ['# LAYOUTS widgets #', *layouts, '# WIDGETS widgets #', *widgets]
+
+				# set it
+				window.Element('objs').Update(values=combo_items)
+				update_clear_btn(window, values)
+
+				el = combo_items[1]
+				if ' ' not in el:
+					window.Element('objname').Update(el)
+					update_clear_btn(window, values, real_value=el)
+
+		elif event == 'objs': 
+			# add only REAL object names -> those, who not contain ' '
+			if ' ' not in values['objs']:
+				window.Element('objname').Update(values['objs'])
+			update_clear_btn(window, values, real_value=values['objs'])
+		elif event == 'objname': 	update_clear_btn(window, values)
+		elif event == 'Clear': 		window.Element('psg_ui_output').Update('')
+		elif event == 'compile_btn': 
+			ui = just_compile(values)
+
+			if values['empty_top_widget']: ui = clear_empty_top_widget(ui)
+
+			window.Element('psg_ui_output').Update(ui)
+		elif event == 'compilepp_btn': 
+			ui = just_compile(values)
+
+			# case for 'speed up'
+			# psg_ui_output = values['psg_ui_output']
+			# ui = ... psg_ui_output ...
+
+			ui = just_compile(values)
+
+			if values['empty_top_widget']: ui = clear_empty_top_widget(ui)
+
+			psg_ui = build_boilerplate( layout=ui,
+										mouse_clicks=values['r2_mouse_clicks'],
+										keys=values['r2_keys'])
 			window.Element('psg_ui_output').Update(psg_ui)
-		if event == 'compile++':
-			psg_ui = build_boilerplate(layout=just_compile(values),
-									   mouse_clicks=values['r2_mouse_clicks'],
-									   keys=values['r2_keys'])
-			window.Element('psg_ui_output').Update(psg_ui)
+		
+		elif event == 'Try in PySimpleGUI':
+			pass
+		# 	try:
+		# 		ui = values['psg_ui_output'].strip()
+
+		# 		if ui[:18] == "sg.Frame('', key='" and ui[-2:] == "])":
+		# 			ui = ui[ui.index('['):-1]
+		# 		elif ui[0] == "[" and ui[-1] == "]":
+		# 			pass
+
+		# 		window2 = sg.Window('test', myui)
+		# 		window2.Read()
+		# 		window2.Close()
+
+		# 	except Exception as e:
+		# 		mbox(str(e))
 
 	window.Close()
 

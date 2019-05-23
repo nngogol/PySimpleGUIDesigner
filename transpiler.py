@@ -316,7 +316,7 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 	# label
 	elif type(normal_item) is QLabel:
 		text = normal_item.text()
-		return f"sg.I('{text}', {size}key='{idd}')"
+		return f"sg.T('{text}', {size}key='{idd}')"
 
 	elif type(normal_item) is QGraphicsView:
 		img_file = normal_item.toolTip()
