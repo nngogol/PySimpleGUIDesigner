@@ -231,7 +231,7 @@ def _compile_GridLayout(parent_node: QGridLayout, is_top=False, make_tabs=-1, GU
 
 	return _tab_da_shit(make_tabs, psg_rows, is_top)
 
-def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, pure=False, menubar_oneline=False):
+def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, pure=False, menubar_oneline=False, make_column_not_frame=False):
 
 	if size != '' and type(size) in [tuple, list] and len(size) == 2:
 		size = 'size=({0}, {1}), '.format(*size)
@@ -256,6 +256,8 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 			normal_item) != QGridLayout else _compile_GridLayout
 		ui = compiler(normal_item, is_top=False, make_tabs=2,
 					  GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)
+		if make_column_not_frame:
+			return f"sg.Column([\n{ui}\n])"
 		return ui if pure else f"sg.Frame('', {size}key='{idd}', layout = [\n{ui}\n])"
 
 	elif type(normal_item) is QWidget:
@@ -266,7 +268,7 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 		# core
 		pages = normal_item.children()[0].children()
 		tabs = [i for i in pages if type(i) == QWidget]
-		tabs = [[	index,
+		tabs = [[ index,
 				  normal_item.tabText(index),
 				  to_psg_element(widget_in_tab, pure=True).strip()
 				  ] for index, widget_in_tab in enumerate(tabs)]
@@ -286,10 +288,10 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 
 		if type(children) is QGridLayout:
 			ui = _compile_GridLayout(children,   make_tabs=2,
-				GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)
+				GUItype=GUItype, pass_bad_widgets=pass_bad_widgets, make_column_not_frame=True)
 		elif type(children) in [QVBoxLayout, QHBoxLayout]:
 			ui = _compile_VBbox(children,        make_tabs=2,
-				GUItype=GUItype, pass_bad_widgets=pass_bad_widgets)
+				GUItype=GUItype, pass_bad_widgets=pass_bad_widgets, make_column_not_frame=True)
 		else:
 			raise Exception(f'How do I parse {children}')
 
@@ -386,7 +388,7 @@ def to_psg_element(normal_item, size='', GUItype='tk', pass_bad_widgets=False, p
 	# button
 	elif type(normal_item) is QPushButton:
 		text = normal_item.text()
-		return f"sg.RButton('{text}', {size}key='{idd}')"
+		return f"sg.Button('{text}', {size}key='{idd}')"
 
 	elif type(normal_item) is QRadioButton:
 		text, group_id = normal_item.text(), normal_item.toolTip()

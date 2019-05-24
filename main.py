@@ -2,6 +2,7 @@ from boilerplate_psg import boilerplate_
 from platform import system as gimme_system
 from re import compile as make_regex, finditer, MULTILINE
 from shutil import copy as copyfile
+import random
 import click
 import json
 import os
@@ -92,6 +93,7 @@ def just_compile(values):
 
 
 def run_gui():
+
 	def clear_empty_top_widget(ui):
 		'''
 		clear ui to easyily for coping functionality (ctrl+c)
@@ -121,6 +123,7 @@ def run_gui():
 		else:
 			my_window.Element('compile_btn').Update(disabled=True)
 			my_window.Element('compilepp_btn').Update(disabled=True)
+
 	#              _
 	#             (_)
 	#   __ _ _   _ _
@@ -134,19 +137,26 @@ def run_gui():
 	input_frame = [[sg.T('\nxml file', **ralign),                   sg.In(key='xmlfile', change_submits=True),  sg.FileBrowse(target='xmlfile'),    sg.T('possible\nobject names', justification='r'), sg.InputCombo(values=[''], key='objs', size=(40, 1), change_submits=True)],
 				   [sg.T('\nTarget object name', **ralign),         sg.In(key='objname', change_submits=True),  sg.B('compile', key='compile_btn', disabled=True), sg.B('compile++', key='compilepp_btn', disabled=True),
 					sg.Radio('all keys', 1, True, key='r2_keys'),   sg.Radio('mouse clicks', 1, key='r2_mouse_clicks')]]
-	layout = [
+	tab1_layout = [
 		[sg.Frame('Input data', input_frame)],
 		[sg.B('Clear'),
 		 sg.CB('forget about bad widgets', True, key='no_bad_widgets'),
 		 sg.CB('empty top widget', True, key='empty_top_widget')],
 		[sg.Multiline(key='psg_ui_output', size=(120, 14))]
 	]
-	window = sg.Window('Transpiler', layout,
+	tab2_layout = [
+		[sg.Image(filename='', key='psg_image')]
+	]
+	layout = [
+		[ sg.TabGroup([[sg.Tab('transpiler', tab1_layout), sg.Tab('hot transpiler', tab2_layout, disabled=True)]]) ]
+	]
+	window = sg.Window('Transpiler', layout=layout,
 					   auto_size_buttons=False,
 					   default_button_element_size=(10, 1))
 
 	while True:             # Event Loop
 		event, values = window.Read()
+		# window.Element('psg_image').Update(filename='imgs/' + random.choice('1.png 2.png 3.png 4.png'.split(' ')))
 
 		if event in (None, 'Exit'):
 			break

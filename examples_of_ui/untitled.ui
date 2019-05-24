@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>995</width>
-    <height>715</height>
+    <width>982</width>
+    <height>847</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,24 +38,14 @@ border: 1px solid black
         <string>Page - grid + vbox</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_17">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_27">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vbox. Idea is simple:&lt;/p&gt;&lt;p&gt;Want to add new row -&amp;gt; make HBox and place elements inside it.&lt;/p&gt;&lt;p&gt;If u want to create Vbox in Vbox -&amp;gt; make Hbox, place QFrame in it, place VBox in QFrame, Place elements in VBox.&lt;/p&gt;&lt;p&gt;If u want to create Grid in Vbox -&amp;gt; make Grid, place QFrame in it, place Grid in QFrame, Place elements in Grid.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" colspan="2">
+        <item row="1" column="1" colspan="2">
          <layout class="QVBoxLayout" name="v1">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <widget class="QLabel" name="label_21">
               <property name="text">
-               <string>Age</string>
+               <string>AGE TEST</string>
               </property>
              </widget>
             </item>
@@ -126,7 +116,7 @@ border: 1px solid black
           </item>
          </layout>
         </item>
-        <item row="0" column="3" colspan="2">
+        <item row="1" column="3" colspan="2">
          <layout class="QVBoxLayout" name="v2">
           <property name="leftMargin">
            <number>5</number>
@@ -238,7 +228,7 @@ border: 1px solid black
           </item>
          </layout>
         </item>
-        <item row="0" column="5">
+        <item row="1" column="5">
          <spacer name="horizontalSpacer_9">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -251,19 +241,9 @@ border: 1px solid black
           </property>
          </spacer>
         </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QLabel" name="label_38">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Grid is like Vbox. See examples.&lt;/p&gt;&lt;p&gt;Elements on multi spans - &lt;span style=&quot; font-weight:600;&quot;&gt;supported&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Grid, Vbox inside grid - &lt;span style=&quot; font-weight:600;&quot;&gt;supported&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
+        <item row="3" column="0" colspan="2">
          <layout class="QGridLayout" name="g2">
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="QPushButton" name="pushButton_11">
             <property name="text">
              <string>submit</string>
@@ -277,14 +257,14 @@ border: 1px solid black
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <widget class="QCheckBox" name="checkBox_30">
             <property name="text">
              <string>sex: male</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="3" column="1">
            <widget class="QCheckBox" name="checkBox_31">
             <property name="text">
              <string>Is Enterprenuer</string>
@@ -298,7 +278,7 @@ border: 1px solid black
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <layout class="QGridLayout" name="gridLayout_10">
             <item row="1" column="1">
              <widget class="QCheckBox" name="checkBox_32">
@@ -339,7 +319,7 @@ border: 1px solid black
           </item>
          </layout>
         </item>
-        <item row="2" column="2" colspan="2">
+        <item row="3" column="2" colspan="2">
          <layout class="QGridLayout" name="g3">
           <item row="4" column="1">
            <widget class="QPushButton" name="pushButton_5">
@@ -424,7 +404,7 @@ border: 1px solid black
           </item>
          </layout>
         </item>
-        <item row="2" column="4">
+        <item row="3" column="4">
          <spacer name="horizontalSpacer_11">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -437,7 +417,7 @@ border: 1px solid black
           </property>
          </spacer>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
          <layout class="QGridLayout" name="g5">
           <item row="0" column="1">
            <widget class="QLineEdit" name="lineEdit_22">
@@ -512,7 +492,7 @@ border: 1px solid black
           </item>
          </layout>
         </item>
-        <item row="3" column="2" colspan="2">
+        <item row="4" column="2" colspan="2">
          <layout class="QGridLayout" name="g6">
           <item row="0" column="1">
            <widget class="QLineEdit" name="lineEdit_23">
@@ -587,7 +567,7 @@ border: 1px solid black
           </item>
          </layout>
         </item>
-        <item row="3" column="4">
+        <item row="4" column="4">
          <spacer name="horizontalSpacer_12">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -599,6 +579,26 @@ border: 1px solid black
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_38">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Grid is like Vbox. See examples. dsdefw&lt;/p&gt;&lt;p&gt;Elements on multi spans - &lt;span style=&quot; font-weight:600;&quot;&gt;supported&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Grid, Vbox inside grid - &lt;span style=&quot; font-weight:600;&quot;&gt;supported&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_27">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vbox. Idea is simple:&lt;/p&gt;&lt;p&gt;Want to add new row -&amp;gt; make HBox and place elements inside it.&lt;/p&gt;&lt;p&gt;If u want to create Vbox in Vbox -&amp;gt; make Hbox, place QFrame in it, place VBox in QFrame, Place elements in VBox.&lt;/p&gt;&lt;p&gt;If u want to create Grid in Vbox -&amp;gt; make Grid, place QFrame in it, place Grid in QFrame, Place elements in Grid.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
