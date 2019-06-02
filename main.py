@@ -1,4 +1,4 @@
-from boilerplate_psg import boilerplate_
+from .boilerplate_psg import boilerplate_
 from platform import system as gimme_system
 from re import compile as make_regex, finditer, MULTILINE
 from shutil import copy as copyfile
@@ -10,7 +10,7 @@ import re
 import sys
 import subprocess
 import PySimpleGUI as sg
-from transpiler import *
+from .transpiler import *
 cd = os.path.dirname(os.path.abspath(__file__))
 
 
