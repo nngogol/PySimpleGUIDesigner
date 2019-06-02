@@ -1,4 +1,4 @@
-# PySimeplGUI Designer
+# PySimpleGUI Designer
 
 ## Install:
 ```bash
@@ -50,3 +50,10 @@ Compile by using options:
 ```bash
 python3 main.py --xmlfile="~/folder1/test.ui" --objname="somegroupBox"
 ```
+
+## FAQ
+
+How do I use PySimpleGUIDesigner WITH Qt Designer?
+Watch this video (by me):
+
+https://www.youtube.com/watch?v=dN7gXwnNoBA
