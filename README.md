@@ -51,6 +51,20 @@ Compile by using options:
 python3 main.py --xmlfile="~/folder1/test.ui" --objname="somegroupBox"
 ```
 
+CLI examples:
+
+Relative path for xml file:
+```bash
+python3 main.py -xmlfile "examples_of_ui/untitled.ui" -objname="vv1"
+python3 main.py -xmlfile "untitled.ui" -objname="text1"
+```
+
+Abs path for xml file:
+```bash
+python3 main.py -xmlfile "/tmp/untitled.ui" -objname="text1"
+```
+
+
 ## FAQ
 
 How do I use PySimpleGUIDesigner WITH Qt Designer?

@@ -1,18 +1,13 @@
-from .boilerplate_psg import boilerplate_
-from platform import system as gimme_system
 from re import compile as make_regex, finditer, MULTILINE
+import random, click, json, os, re, sys, subprocess
+from platform import system as gimme_system
 from shutil import copy as copyfile
-import random
-import click
-import json
-import os
-import re
-import sys
-import subprocess
-import PySimpleGUI as sg
-from .transpiler import *
-cd = os.path.dirname(os.path.abspath(__file__))
 
+from boilerplate_psg import boilerplate_
+from transpiler import *
+import PySimpleGUI as sg
+
+cd = os.path.dirname(os.path.abspath(__file__))
 
 def build_boilerplate(layout='[[]]', mouse_clicks=False, keys=False):
 	# create a str with PSG code
@@ -83,7 +78,7 @@ def just_compile(values):
 	# 4
 	RESULTPSG = os.path.join(cd, 'result_psg.ui')
 	if not os.path.exists(RESULTPSG):
-		return f'error, no obj_name="{OBJ_NAME}"" found'
+		raise Exception(f'error, no obj_name="{OBJ_NAME}" found')
 
 	with open(RESULTPSG, 'r', encoding='utf-8') as ff:
 		content = ff.read()
@@ -243,20 +238,26 @@ def run_gui():
 
 
 @click.command()
+@click.option('-v', '--verbose', default=False, is_flag=True, help='Verbose mode')
 @click.option('-x', '--run', default=True, is_flag=True, help='just run gui example')
-@click.option('-xmlfile', type=click.Path(exists=True), help='abs path to ui file')
+@click.option('-xmlfile', type=click.Path(exists=True), help='abs or rel path to ui_file')
 @click.option('-objname', type=str, help='object name of target container')
 @click.option('-nobadwidgets', default=True, is_flag=True, help='forget about bad widgets. Default - True')
 @click.option('-o', '--outputfile', type=click.Path(), help='file to output compiled PySimpleGUI ui')
 @click.option('-pp_mouse', default=False, is_flag=True, help='compile++ option - do the mouse clicks events')
 @click.option('-pp_keys',  default=False, is_flag=True, help='compile++ option - do the keys events')
-def cli(run, xmlfile, objname, nobadwidgets, outputfile, pp_mouse, pp_keys):
+def cli(xmlfile, objname, nobadwidgets, outputfile, pp_mouse, pp_keys, verbose, run):
 
 	if run and not (xmlfile and objname):
 		run_gui()
 	elif xmlfile and objname:
 
 		try:
+			# RELATIVE path: add PWD to current file path
+			if not (xmlfile.startswith('/') or xmlfile[1] == ':'):
+				xmlfile = os.path.join(cd, xmlfile)
+				if verbose: print(f'input = "{xmlfile}"')
+
 			psg_ui = just_compile({'objname': objname,
 								   'xmlfile': xmlfile, 'no_bad_widgets': nobadwidgets})
 			# compile++
@@ -271,9 +272,12 @@ def cli(run, xmlfile, objname, nobadwidgets, outputfile, pp_mouse, pp_keys):
 					ff.write(psg_ui)
 			else:
 				click.echo(psg_ui)
-			# click.echo(click.style("\n~~~done", bg='black', fg='green'))
+			
+			if verbose: click.echo(click.style("\n~~~done", bg='black', fg='green'))
+
 		except Exception as e:
 			click.echo(click.style(str(e), bg='black', fg='red'))
+
 
 
 if __name__ == '__main__':
