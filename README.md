@@ -53,15 +53,25 @@ python3 main.py --xmlfile="~/folder1/test.ui" --objname="somegroupBox"
 
 CLI examples:
 
-Relative path for xml file:
 ```bash
+# # #        give different path for xmlfile
+# Abs path
+python3 main.py -xmlfile "/tmp/examples_of_ui/untitled.ui" -objname="text1"
+# Relative path
 python3 main.py -xmlfile "examples_of_ui/untitled.ui" -objname="vv1"
 python3 main.py -xmlfile "untitled.ui" -objname="text1"
-```
 
-Abs path for xml file:
-```bash
-python3 main.py -xmlfile "/tmp/untitled.ui" -objname="text1"
+# tab character
+# tc = tab character, ta = tab amount
+python3 main.py -xmlfile "untitled.ui" -objname="text1" -tc " "
+python3 main.py -xmlfile "untitled.ui" -objname="text1" -tc " " -ta 1 # the same effect, as command above
+python3 main.py -xmlfile "untitled.ui" -objname="text1" -tc " " -ta 2
+
+# add boilerplate to output file
+python3 main.py -xmlfile "untitled.ui" -objname="text1" -pp_mouse -tc " " -ta 2
+python3 main.py -xmlfile "untitled.ui" -objname="text1" -pp_keys
+python3 main.py -xmlfile "untitled.ui" -objname="text1" -tc " " -ta 2 -pp_keys
+
 ```
 
 
