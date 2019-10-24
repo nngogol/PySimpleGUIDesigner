@@ -1,16 +1,19 @@
+import json
 from re import compile as make_regex, finditer, MULTILINE
 import random, click, json, os, re, sys, subprocess
 from platform import system as gimme_system
 from shutil import copy as copyfile
+from transpiler import *
+import PySimpleGUI as sg
 
-boilerplate_ = '''import PySimpleGUI as sg
+main_boilerplate = '''import PySimpleGUI as sg
 
 layout = [[]]
 window = sg.Window('App', layout)
 
 while True:
-	event, values = window.Read()
-	if event is None or event == 'Exit':
+	event, values = window.read()
+	if event in (None, 'Exit'):
 		break
 
 	if event == '':
@@ -18,11 +21,8 @@ while True:
 
 # ~TARGET
 
-window.Close()
+window.close()
 '''
-
-from transpiler import *
-import PySimpleGUI as sg
 
 cd = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,11 +48,11 @@ def build_boilerplate(layout='[[]]', mouse_clicks=False, keys=False):
 		return boilerplate.replace('# ~TARGET', do_callbacks(keys))
 
 	if not mouse_clicks and not keys:
-		text = boilerplate_
+		text = main_boilerplate
 	elif mouse_clicks:
-		text = do_mice_events(layout, boilerplate_)
+		text = do_mice_events(layout, main_boilerplate)
 	elif keys:
-		text = do_keys_events(layout, boilerplate_)
+		text = do_keys_events(layout, main_boilerplate)
 
 	return text.replace('[[]]', layout)
 
@@ -91,20 +91,24 @@ def just_compile(values):
 	subprocess.run(command, shell=True, stdout=subprocess.DEVNULL,
 				   stderr=subprocess.DEVNULL)
 	# 3
+	# rm given file
 	os.remove(ui_file)
 	# 4
-	RESULTPSG = os.path.join(cd, 'result_psg.ui')
+	# return psg code
+	RESULTPSG = os.path.join(cd, 'result_psg.layout')
 	if not os.path.exists(RESULTPSG):
 		raise Exception(f'error, no obj_name="{OBJ_NAME}" found')
-
-	with open(RESULTPSG, 'r', encoding='utf-8') as ff:
-		content = ff.read()
+	content = readfile(RESULTPSG)
 	os.remove(RESULTPSG)
-
 	return content
+
+def readfile(filename):
+	with open(filename, 'r', encoding='utf-8') as ff:
+		return ff.read()
 
 
 def run_gui():
+	settings_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'setting.json')
 
 	def clear_empty_top_widget(ui):
 		'''
@@ -125,16 +129,38 @@ def run_gui():
 			return new_ui[:-1]
 		return ui
 
+
 	def update_clear_btn(my_window, my_values, real_value=''):
 		objname = my_values['objname'] if real_value == '' else real_value
-		all_object_names_in_combo = my_window.Element('objs').Values
+		all_object_names_in_combo = my_window['objs'].Values
 
 		if my_values['xmlfile'] and objname and objname in all_object_names_in_combo:
-			my_window.Element('compile_btn').Update(disabled=False)
-			my_window.Element('compilepp_btn').Update(disabled=False)
+			my_window['compile_btn'].Update(disabled=False)
+			my_window['compilepp_btn'].Update(disabled=False)
 		else:
-			my_window.Element('compile_btn').Update(disabled=True)
-			my_window.Element('compilepp_btn').Update(disabled=True)
+			my_window['compile_btn'].Update(disabled=True)
+			my_window['compilepp_btn'].Update(disabled=True)
+
+	def update_app_settings():
+		with open(settings_path, 'w', encoding='utf-8') as f:
+			json.dump(_settings, f, ensure_ascii=False, indent=2)
+
+	if os.path.exists(settings_path):
+		try:
+			with open(settings_path, 'r', encoding='utf-8') as f:
+				_settings = json.load(f)
+		except Exception as e:
+			_settings = {
+				'-memento-file-cb-' : False,
+				'xmlfile' : ''
+			}
+			update_app_settings()
+	else:
+		_settings = {
+			'-memento-file-cb-' : False,
+			'xmlfile' : ''
+		}
+		update_app_settings()
 
 	#              _
 	#             (_)
@@ -144,38 +170,82 @@ def run_gui():
 	#  \__, |\__,_|_|
 	#   __/ |
 	#  |___/
-
 	ralign = {'size': (16, 3), "justification": 'r'}
-	input_frame = [[sg.T('\nxml file', **ralign),                   sg.In(key='xmlfile', change_submits=True),  sg.FileBrowse(target='xmlfile'),    sg.T('possible\nobject names', justification='r'), sg.InputCombo(values=[''], key='objs', size=(40, 1), change_submits=True)],
-				   [sg.T('\nTarget object name', **ralign),         sg.In(key='objname', change_submits=True),  sg.B('compile', key='compile_btn', disabled=True), sg.B('compile++', key='compilepp_btn', disabled=True),
-					sg.Radio('all keys', 1, True, key='r2_keys'),   sg.Radio('mouse clicks', 1, key='r2_mouse_clicks')]]
-	tab1_layout = [
-		[sg.Frame('Input data', input_frame)],
-		[sg.B('Clear'),
-		 sg.CB('forget about bad widgets', True, key='no_bad_widgets'),
-		 sg.CB('empty top widget', True, key='empty_top_widget'),
-		 sg.B('Try'),],
-		[sg.Multiline(key='psg_ui_output', size=(120, 14))]
-	]
-	tab2_layout = [
-		[sg.Image(filename='', key='psg_image')]
-	]
-	layout = [
-		[ sg.TabGroup([[sg.Tab('transpiler', tab1_layout), sg.Tab('hot transpiler', tab2_layout, disabled=True)]]) ]
-	]
-	window = sg.Window('Transpiler', layout=layout,
-					   auto_size_buttons=False,
-					   default_button_element_size=(10, 1))
+	pad = {'pad':(1,1)}
+	input_frame = [
+		[sg.T('\nxml file', **ralign)
+		 ,sg.I(key='xmlfile', size=(35,2), **pad, change_submits=True)
+		 ,sg.FileBrowse(target='xmlfile')
+		 ,sg.T('possible\nobject names', justification='r')
+		 ,sg.Drop(values=[''], key='objs', size=(30, 1), change_submits=True)],
 
-	while True:             # Event Loop
-		event, values = window.Read()
-		# window.Element('psg_image').Update(filename='imgs/' + random.choice('1.png 2.png 3.png 4.png'.split(' ')))
+		[sg.T('\nTarget object name', **ralign)
+		 ,sg.I(key='objname', change_submits=True)
+		 ,sg.B('compile', key='compile_btn', **pad, disabled=True)
+		 ,sg.B('compile++', key='compilepp_btn', **pad, disabled=True)
+		 ,sg.Radio('all keys', 1, True, key='r2_keys', **pad)
+		 ,sg.Radio('mouse clicks', 1, key='r2_mouse_clicks', **pad)]
+	]
+
+	tab1_layout = [
+		[sg.Frame('Input data', input_frame, **pad,)],
+		[sg.B('Clear')
+		 ,sg.CB('pass bad widgets', True, key='no_bad_widgets',**pad,)
+		 ,sg.CB('empty top widget', True, key='empty_top_widget',**pad,)
+		 ,sg.B('Execute code below (if generated with compile++ button)', **pad, disabled=True,
+		 		 size=(25, 2), key='Try')],
+		[sg.ML(key='psg_ui_output', size=(120, 8))]
+	]
+	tab3_layout = [
+		[sg.CB('Remember path to previous file', False, change_submits=True, key='-memento-file-cb-')
+		],
+	]
+	tab2_layout = [[sg.Image(filename='', key='psg_image')]]
+
+	layout = [[ sg.TabGroup([[
+		sg.Tab('transpiler', tab1_layout, **pad,),
+		sg.Tab('settings', tab3_layout),
+		sg.Tab('hot transpiler', tab2_layout, disabled=True)]]) ]
+	]
+
+	window = sg.Window('Transpiler', layout, auto_size_buttons=False,
+								   default_button_element_size=(10, 1),
+								   finalize=True)
+	
+	# setup
+	if _settings['-memento-file-cb-']:
+		window['-memento-file-cb-'].Update(True)
+		window['xmlfile'].Update(_settings['xmlfile'])
+
+	prev_values = None
+
+	# loop
+	first_time_running = True
+	while True:
+		if first_time_running:
+			event, values = window.read(timeout=0)
+			event = 'xmlfile'
+			first_time_running = False
+		else:
+			event, values = window.read()
 
 		if event in (None, 'Exit'):
 			break
+
+		prev_values = values
+		if event == '-memento-file-cb-':
+			print(values)
+			_settings['-memento-file-cb-'] = values['-memento-file-cb-']
+			_settings['xmlfile'] = '' if values['-memento-file-cb-'] else values['xmlfile']
+			update_app_settings()
+
 		elif event == 'xmlfile':
-			myxml_file = values['xmlfile']
-			if os.path.exists(myxml_file):
+			myxml_file = values['xmlfile'].strip()
+			# remember this file
+			if _settings['-memento-file-cb-']:
+				_settings['xmlfile'] = myxml_file
+				update_app_settings()
+			if os.path.exists(myxml_file) and os.path.isfile(myxml_file):
 
 				# get xml
 				with open(myxml_file, 'r', encoding='utf-8') as ff:
@@ -194,30 +264,33 @@ def run_gui():
 				combo_items = ['# LAYOUTS widgets #', *layouts, '# WIDGETS widgets #', *widgets]
 
 				# set it
-				window.Element('objs').Update(values=combo_items)
+				window['objs'].Update(values=combo_items)
 				update_clear_btn(window, values)
 
 				el = combo_items[1]
 				if ' ' not in el:
-					window.Element('objname').Update(el)
+					window['objname'].Update(el)
 					update_clear_btn(window, values, real_value=el)
+			else:
+				window['objs'].Update(values=[])
+				window['objname'].Update('')
 
 		elif event == 'objs':
 			# add only REAL object names -> those, who not contain ' '
 			if ' ' not in values['objs']:
-				window.Element('objname').Update(values['objs'])
+				window['objname'].Update(values['objs'])
 			update_clear_btn(window, values, real_value=values['objs'])
 		elif event == 'objname':
 			update_clear_btn(window, values)
 		elif event == 'Clear':
-			window.Element('psg_ui_output').Update('')
+			window['psg_ui_output'].Update('')
 		elif event == 'compile_btn':
 			ui = just_compile(values)
 
 			if values['empty_top_widget']:
 				ui = clear_empty_top_widget(ui)
 
-			window.Element('psg_ui_output').Update(ui)
+			window['psg_ui_output'].Update(ui)
 		elif event == 'compilepp_btn':
 			ui = just_compile(values)
 
@@ -233,32 +306,50 @@ def run_gui():
 			psg_ui = build_boilerplate(layout=ui,
 									   mouse_clicks=values['r2_mouse_clicks'],
 									   keys=values['r2_keys'])
-			window.Element('psg_ui_output').Update(psg_ui)
+			window['psg_ui_output'].Update(psg_ui)
 
 		elif event == 'Try':
 			try:
-				psg_ui_output = values['psg_ui_output'].strip()
-				
-				# if myui[:18] == "sg.Frame('', key='" and myui[-2:] == "])":
-				# 	myui = myui[myui.index('['):-1]
-				# elif myui[0] == "[" and myui[-1] == "]":
-				# 	pass
+				psg_ui = values['psg_ui_output'].strip()
+				psg_ui_lines = psg_ui.split('\n')
 
-				MYUI = eval(psg_ui_output)
+				'''
+				case 1:
+					import PySimpleGUI as sg
+					...
+				case 2:
+					sg.Frame('', layout = [
+						[...],
+						[...],
+						[...],
+					])
+				case 3:
+					[
+						[...],
+						[...],
+						[...],
+					]
+				'''
+				if psg_ui.startswith('import PySimpleGUI as sg'):
+					exec(psg_ui)
+				if psg_ui_lines[0].startswith("""sg.Frame('""") and psg_ui_lines[0].endswith("""', layout = ["""):
+					window2 = sg.Window('test', eval(psg_ui))
+					window2.read()
+					window2.close()
+				if psg_ui_lines[0].startswith("""[""") and psg_ui_lines[-1].endswith("""]"""):
+					possible_ui = eval(psg_ui)
+					possible_ui
+					if type(possible_ui) is list and type(possible_ui[0]) is not list:
+						raise Exception(f"bad ui given. It's not a list of LISTS.")
+					window2 = sg.Window('test', possible_ui)
+					window2.read()
+					window2.close()
 
-				if type(MYUI) is not list:
-					raise Exception(f"bad ui given. It's not a list. Your type is {type(MYUI)}")
-				if type(MYUI) is list and type(MYUI[0]) is not list:
-					raise Exception(f"bad ui given. It's not a list of LISTS.")
-
-				window2 = sg.Window('test', MYUI)
-				window2.Read()
-				window2.Close()
 
 			except Exception as e:
-				sg.Popup(str(e))
+				sg.popup(str(e))
 
-	window.Close()
+	window.close()
 
 
 @click.command()

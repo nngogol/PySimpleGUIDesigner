@@ -4,14 +4,13 @@ layout = [[]]
 window = sg.Window('App', layout)
 
 while True:
-	event, values = window.Read()
-	if event is None or event == 'Exit':
-		break
+	event, values = window.read()
+	if event in (None, 'Exit'): break
 
 	if event == '':
 		pass
 
 # ~TARGET
 
-window.Close()
+window.close()
 '''
