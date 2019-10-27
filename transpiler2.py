@@ -527,6 +527,8 @@ def optimize_psg_code(code):
         new_code = re.sub(rf""", key=\'{i}\d*\'""", '',
                           new_code, flags=re.MULTILINE)
 
+    # 3 avoid empty sg.T widgets
+    new_code = new_code.replace('sg.T()', "sg.T('')")
     return new_code
 
 

@@ -38,6 +38,8 @@ class MyWin(QtWidgets.QMainWindow):
 		except Exception as e:
 
 			message = 'Error:   \n' + str(e)
+			if '''PySide2.QtWidgets.QMainWindow' object has no attribute''' in str(e):
+				message = 'Error:   \nElement with "object name"="' + object_name + '" not found'
 			
 			# output psg code to file
 			with open(result_psg_ui, 'w', encoding='utf-8') as ff:
