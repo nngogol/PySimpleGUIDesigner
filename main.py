@@ -10,7 +10,7 @@ import sys
 import subprocess
 from platform import system as gimme_system
 from shutil import copy as copyfile
-from .transpiler2 import *
+from transpiler2 import *
 import PySimpleGUI as sg
 from hashlib import sha256
 
