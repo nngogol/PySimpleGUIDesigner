@@ -45,7 +45,7 @@ border: 1px solid black
             <item>
              <widget class="QLabel" name="label_21">
               <property name="text">
-               <string>AGE TEST</string>
+               <string>AGE TEST 4</string>
               </property>
              </widget>
             </item>
@@ -455,7 +455,7 @@ border: 1px solid black
            </widget>
           </item>
           <item row="1" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout_7">
+           <layout class="QVBoxLayout" name="v5">
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <item>

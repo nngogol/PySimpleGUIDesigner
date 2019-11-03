@@ -10,8 +10,18 @@ import sys
 import subprocess
 from platform import system as gimme_system
 from shutil import copy as copyfile
-from transpiler2 import *
+from .transpiler2 import *
 import PySimpleGUI as sg
+from hashlib import sha256
+
+def file_hash(file_path):
+    def readfile_bin(filename):
+        with open(filename, 'rb') as ff:
+            return ff.read()
+    
+    m = sha256()
+    m.update(readfile_bin(file_path))
+    return m.digest()
 
 main_boilerplate = '''import PySimpleGUI as sg
 
@@ -50,7 +60,6 @@ def make_tab_indent(psg_code, indent_size=1, indent_char=' '):
             result.append(curr_line)
 
     return '\n'.join(result)
-
 
 def build_boilerplate(layout='[[]]', btns_event=False, all_events=False):
     # create a str with PSG code
@@ -91,13 +100,17 @@ def build_boilerplate(layout='[[]]', btns_event=False, all_events=False):
 
     return boilerplate_layout
 
-
-def just_compile(values, indent_size=1, indent_char=' '):
+def just_compile(values):
 
     #
     # compile "XML_file + object_name" to "PSG ui"
     #
     OBJ_NAME, inputXMLui, NO_BAD_WIDGETS = values['objname'], values['xmlfile'], values['no_bad_widgets']
+    indent_size = int(values['indent_size'])
+    indent_char = values['indent_char']
+    
+
+
     # make absolute path, if just filename given
     if '/' not in inputXMLui and '\\' not in inputXMLui:
         inputXMLui = os.path.join(cd, inputXMLui)
@@ -138,11 +151,13 @@ def just_compile(values, indent_size=1, indent_char=' '):
     os.remove(RESULTPSG)
     return make_tab_indent(content, indent_size=indent_size, indent_char=indent_char)
 
+def writefile(fpath, content):
+    with open(fpath, 'w', encoding='utf-8') as ff:
+        ff.write(content)
 
 def readfile(filename):
     with open(filename, 'r', encoding='utf-8') as ff:
         return ff.read()
-
 
 def run_gui():
     settings_path = os.path.join(cd, 'setting.json')
@@ -182,6 +197,69 @@ def run_gui():
     def update_app_settings():
         with open(settings_path, 'w', encoding='utf-8') as f:
             json.dump(_settings, f, ensure_ascii=False, indent=2)
+
+    def send_board_message(text='*** Done ***', window=None):
+
+        curr_title = window['message_board'].metadata
+        new_title = '{} | {} '.format(curr_title, text)
+        window['message_board'].TKFrame.config(text=new_title)
+
+        # counter end -> execute this:
+        def clear_frame():
+            new_board_message = window['message_board'].metadata
+            window['message_board'].TKFrame.config(text=new_board_message)
+        return {'count': 1, 'finished' : clear_frame}
+
+    def parse_n_load_possible_widgets(myxml_file='', window=None, values={}):
+        '''
+        возвращает найденые object_names все виджетов
+        '''
+
+        if os.path.exists(myxml_file) and os.path.isfile(myxml_file):
+            # get xml
+            with open(myxml_file, 'r', encoding='utf-8') as ff:
+                xml_code = ff.read()
+
+            # filter object names
+            widgets_regexpattern = make_regex(
+                r"^[ \s]{1,}<(widget)\s?.*?\s?name=\"(.+)\"\/?>", MULTILINE)
+            layouts_regexpattern = make_regex(
+                r"^[ \s]{1,}<(layout)\s?.*?\s?name=\"(.+)\"\/?>", MULTILINE)
+            widgets = [i.group(2) for i in finditer(
+                widgets_regexpattern, xml_code)]
+            layouts = [i.group(2) for i in finditer(
+                layouts_regexpattern, xml_code)]
+            widgets.sort()
+            layouts.sort()
+
+            # #####################
+            # обработка id виджетов
+            # #####################
+            for i in widgets:
+                if '"' in i: i = i[:i.index('"')]
+
+            for i in layouts:
+                if '"' in i: i = i[:i.index('"')]
+
+            # ######
+            # insert
+            # ######
+            combo_items = ['# pick LAYOUTS widgets #', *layouts, '# pick WIDGETS widgets #', *widgets]
+            window['objs'].update(values=combo_items)
+            update_clear_btn(window, values)
+
+            el = combo_items[1]
+            if ' ' not in el:
+                window['objname'].update(el)
+                update_clear_btn(window, values, real_value=el)
+
+            return combo_items
+        else:
+            window['objs'](values=[])
+            window['objname']('')
+        
+        return []
+
 
     if os.path.exists(settings_path):
         try:
@@ -237,6 +315,32 @@ def run_gui():
          sg.I('1', size=(5, 1), key='indent_size')],
         [sg.T('Indent char', key='indent_char '),
          sg.I(' ', size=(5, 1), key='indent_char')],
+
+
+        ############
+        # autoupdate
+        ############
+        [sg.Frame('Auto updater', layout=[
+            [sg.CB('Enable', False, key='enable_autocompiler',
+                    change_submits=True, pad=(0,0), size=(20, 1)),
+              sg.T('interval(ms)'),
+              sg.Spin(list(range(500, 1000)), initial_value=500, key='autocompile_interval_ms',
+                    size=(10, 1), change_submits=True, pad=(0,0))],
+
+            [sg.T('===========================')],
+
+            [ sg.T('output folder:   ', pad=(0,0)),
+                sg.I('', key='autotarget_file'),
+                sg.B('copy folder\nfrom input-file', key='copy_xmlfile_btn',
+                    size=(10,2), pad=(0,0), button_color=('black', 'orange')),
+                sg.FolderBrowse('browse folder...',
+                      target='autotarget_file', pad=(0,0), key='browse_input_file_key')
+            ],
+            [ sg.T('output file name:', pad=(0,0)),
+                sg.I('untitled_psg.py', key='PSG_OUTPUT_FNAME'),
+            ],
+        ])],
+
     ]
 
     layout = [
@@ -249,7 +353,7 @@ def run_gui():
                 [sg.B('Clear output', key='clear_btn'), 
                  sg.B('Execute output (used after convert++)',
                         size=(35, 1), disabled=True, key='Try')],
-                [sg.ML(key='psg_ui_output', size=(60, 15))]
+                [sg.ML(key='psg_ui_output', size=(70, 20))]
             ], key='message_board', metadata='Output data')],
     ]
 
@@ -257,37 +361,43 @@ def run_gui():
                        default_button_element_size=(10, 1),
                        finalize=True, location=(100, 100))
 
+
+
+    # #####
     # setup
+    # #####
     if _settings['-memento-file-cb-']:
         window['-memento-file-cb-'].update(True)
         window['xmlfile'].update(_settings['xmlfile'])
+        update_app_settings()
+    psg_vals = window(timeout=0)[1]
+    parse_n_load_possible_widgets(psg_vals['xmlfile'].strip(), window, psg_vals)
 
+    # #########
+    # variables
+    # #########
     timers = []
-    def send_board_message(text='*** Done ***', window=None):
 
-        curr_title = window['message_board'].metadata
-        new_title = '{} | {} '.format(curr_title, text)
-        window['message_board'].TKFrame.config(text=new_title)
-
-        # counter end -> execute this:
-        def clear_frame():
-            new_board_message = window['message_board'].metadata
-            window['message_board'].TKFrame.config(text=new_board_message)
-        return {'count': 1, 'finished' : clear_frame}
+    # ############
+    # variables: for auto-compile
+    # ############
+    is_autocompiler_working = False
+    autocompile_interval_ms = psg_vals['autocompile_interval_ms']
+    p_input_xml_hash = None
+    curr_file_hash = file_hash(psg_vals['xmlfile']) if os.path.exists(psg_vals['xmlfile']) else b''
+    current_obj_names = []
 
 
-    # loop
-    prev_values = None
-    first_time_running = True
+
+    status = True
+    window['autocompile_interval_ms'](disabled=status); window['autotarget_file'](disabled=status); window['copy_xmlfile_btn'](disabled=status); window['browse_input_file_key'](disabled=status); window['PSG_OUTPUT_FNAME'](disabled=status)
+
     while True:
-
-        # первый запуск -> подгружка имен из xmlfile, если он есть
-        if first_time_running:
-            event, values = window.read(timeout=0)
-            event = 'xmlfile'
-            first_time_running = False
+        if is_autocompiler_working:
+            event, values = window(timeout=autocompile_interval_ms)
         else:
-            event, values = window.read(timeout=500)
+            event, values = window(timeout=500)
+
 
         if event in (None, 'Exit'):
             break
@@ -311,51 +421,59 @@ def run_gui():
         #             |___/            #
         ################################
 
-        indend_size_n_char = int(values['indent_size']), values['indent_char']
+        # ############
+        # auto compile
+        # ############
+        is_autocompiler_working = values['enable_autocompiler']
+        if is_autocompiler_working:
 
-        prev_values = values
-        if event == '-memento-file-cb-':
-            _settings['-memento-file-cb-'] = values['-memento-file-cb-']
-            _settings['xmlfile'] = '' if values['-memento-file-cb-'] else values['xmlfile']
-            update_app_settings()
+            autotarget_file_dir = os.path.dirname(values['autotarget_file'])
 
-        elif event == 'xmlfile':
-            myxml_file = values['xmlfile'].strip()
+            if values['objname'] not in current_obj_names:
+                window['psg_ui_output']('(autocompiler) Error :\nBad target object name.')
+            elif not os.path.exists(autotarget_file_dir):
+                window['psg_ui_output']('(autocompiler) Error :\nBad output folder.')
+            elif not os.path.exists(values['xmlfile']):
+                window['psg_ui_output']('(autocompiler) Error :\nBad input xml file.')
+            else:
+                file_hash_val = file_hash(values['xmlfile'])
+                if not curr_file_hash:
+                    # first time
+                    output_file = os.path.join(autotarget_file_dir, values['PSG_OUTPUT_FNAME'])
+                    psg_ui_code = just_compile(values)
+                    writefile(output_file, psg_ui_code)
+                    window['psg_ui_output']('compiled!')
+                else:
+                    # as usual
+                    if curr_file_hash != file_hash_val or event == 'objname':
+                        # long
+                        output_file = os.path.join(autotarget_file_dir, values['PSG_OUTPUT_FNAME'])
+                        psg_ui_code = just_compile(values)
+
+                        writefile(output_file, psg_ui_code)
+                        window['psg_ui_output']('compiled!')
+
+                curr_file_hash = file_hash_val
+
+        # ###########
+        # sg.I events
+        # ###########
+        # update ms update interval sg.Spin
+        if event == 'autocompile_interval_ms':
+            autocompile_interval_ms = values['autocompile_interval_ms']
+
+        if event == 'enable_autocompiler':
+            status = not values['enable_autocompiler']
+            window['autocompile_interval_ms'](disabled=status); window['autotarget_file'](disabled=status); window['copy_xmlfile_btn'](disabled=status); window['browse_input_file_key'](disabled=status); window['PSG_OUTPUT_FNAME'](disabled=status)
+
+        if event == 'xmlfile':
+            
             # remember this file
             if _settings['-memento-file-cb-']:
-                _settings['xmlfile'] = myxml_file
+                _settings['xmlfile'] = values['xmlfile'].strip()
                 update_app_settings()
-            if os.path.exists(myxml_file) and os.path.isfile(myxml_file):
-
-                # get xml
-                with open(myxml_file, 'r', encoding='utf-8') as ff:
-                    xml_code = ff.read()
-
-                # filter object names
-                widgets_regexpattern = make_regex(
-                    r"^[ \s]{1,}<(widget)\s?.*?\s?name=\"(.+)\"\/?>", MULTILINE)
-                layouts_regexpattern = make_regex(
-                    r"^[ \s]{1,}<(layout)\s?.*?\s?name=\"(.+)\"\/?>", MULTILINE)
-                widgets = [i.group(2) for i in finditer(
-                    widgets_regexpattern, xml_code)]
-                layouts = [i.group(2) for i in finditer(
-                    layouts_regexpattern, xml_code)]
-                widgets.sort()
-                layouts.sort()
-
-                combo_items = ['# pick LAYOUTS widgets #', *layouts, '# pick WIDGETS widgets #', *widgets]
-
-                # set it
-                window['objs'].update(values=combo_items)
-                update_clear_btn(window, values)
-
-                el = combo_items[1]
-                if ' ' not in el:
-                    window['objname'].update(el)
-                    update_clear_btn(window, values, real_value=el)
-            else:
-                window['objs'].update(values=[])
-                window['objname'].update('')
+            obj_names = parse_n_load_possible_widgets(values['xmlfile'].strip(), window, values)
+            current_obj_names = obj_names
 
         elif event == 'objs':
             # add only REAL object names -> those, who not contain ' '
@@ -366,29 +484,43 @@ def run_gui():
         elif event == 'objname':
             update_clear_btn(window, values)
 
+
+        # ########
+        # checkbox
+        # ########
+        if event == '-memento-file-cb-':
+            _settings['-memento-file-cb-'] = values['-memento-file-cb-']
+            _settings['xmlfile'] = '' if values['-memento-file-cb-'] else values['xmlfile']
+            update_app_settings()
+        
+        # #######
+        # buttons
+        # #######
         elif event == 'clear_btn':
             window['psg_ui_output'].update('')
 
+        elif event == 'copy_xmlfile_btn':
+            window['autotarget_file'](os.path.dirname(values['xmlfile']) + '/')
+        
         elif event == 'convert_btn':
-            ui = just_compile(values, *indend_size_n_char)
+            ui = just_compile(values)
             window['psg_ui_output'].update(ui)
 
             if ui.startswith('Error:'):
                 # fail
-                timers.append(send_board_message(text='*** Fail ***', window=window))
+                timers.append(send_board_message(text='***!!!*** Fail ***!!!***', window=window))
             else:
                 # success
                 timers.append(send_board_message(text='*** Done ***', window=window))
 
         elif event == 'convert_all_events':
-            ui = just_compile(values, *indend_size_n_char)
-            psg_ui = build_boilerplate(layout=ui,
-                                        btns_event=False, all_events=True)
+            ui = just_compile(values)
+            psg_ui = build_boilerplate(layout=ui, btns_event=False, all_events=True)
 
             if ui.startswith('Error:'):
                 # fail
                 window['psg_ui_output'].update(ui)
-                timers.append(send_board_message(text='*** Fail ***', window=window))
+                timers.append(send_board_message(text='***!!!*** Fail ***!!!***', window=window))
             else:
                 # success
                 window['psg_ui_output'].update(psg_ui)
@@ -396,14 +528,13 @@ def run_gui():
             
 
         elif event == 'convert_btns_events':
-            ui = just_compile(values, *indend_size_n_char)
-            psg_ui = build_boilerplate(layout=ui,
-                                        btns_event=True, all_events=False)
+            ui = just_compile(values)
+            psg_ui = build_boilerplate(layout=ui, btns_event=True, all_events=False)
 
             if ui.startswith('Error:'):
                 # fail
                 window['psg_ui_output'].update(ui)
-                timers.append(send_board_message(text='*** Fail ***', window=window))
+                timers.append(send_board_message(text='***!!!*** Fail ***!!!***', window=window))
             else:
                 # success
                 window['psg_ui_output'].update(psg_ui)
@@ -479,8 +610,9 @@ def cli(xmlfile, objname, nobadwidgets, outputfile, pp_mouse, pp_keys, indent_ch
                     print(f'input = "{xmlfile}"')
 
             psg_ui = just_compile({'objname': objname,
-                                   'xmlfile': xmlfile, 'no_bad_widgets': nobadwidgets},
-                                  indent_size=indent_char_amount, indent_char=indent_char)
+                                   'xmlfile': xmlfile, 'no_bad_widgets': nobadwidgets,
+                                    'indent_size' : indent_char_amount,
+                                    'indent_char' : indent_char})
 
             # compile++
             if pp_mouse:
