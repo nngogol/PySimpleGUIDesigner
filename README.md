@@ -2,8 +2,8 @@
 
 ## Install:
 ```bash
-# Requirements: pyside2
-# $ pip install PySide2
+# Requirements: pyside2, click
+# $ pip install PySide2 click
 pip install PySimpleGUIDesigner
 ```
 
