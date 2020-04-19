@@ -1,5 +1,7 @@
 # PySimpleGUI Designer
 
+![designer](https://github.com/nngogol/PySimpleGUIDesigner/blob/master/2020-04-19---14-52-26.png)
+
 ## Install:
 ```bash
 # Requirements: pyside2, click
