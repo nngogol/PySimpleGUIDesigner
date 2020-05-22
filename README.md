@@ -2,6 +2,10 @@
 
 ![designer](https://github.com/nngogol/PySimpleGUIDesigner/blob/master/2020-04-19---14-52-26.png)
 
+How do I use PySimpleGUIDesigner WITH Qt Designer?
+Watch this video (by me): https://www.youtube.com/watch?v=dN7gXwnNoBA
+
+
 ## Install:
 ```bash
             THIS PACKAGE         Requirements 
@@ -33,6 +37,7 @@ Options:
   -ob, --objname TEXT             Object name of target container
   -nobadwidgets                   Forget about not-implemented(bad) widgets.
                                   Default - True
+
   -ic, --indent_char TEXT         Indent character. Default is " "
   -ia, --indent_char_amount INTEGER
                                   Indent amount
@@ -40,99 +45,111 @@ Options:
   -pp_mouse                       Option - generate buttons events
   -pp_keys                        Option - generate all events
   --help                          Show this message and exit.
+
 ```
 
 
 
-## Using source code (from this repo)
+## I want to use source code directly (from this repo code)
 
-Let's imagine you say "I don't want `pip install`, how to use this repo's source code?"
+Ok(I don't know you need this), but here are the steps.
 
-Download this repo, ***cd*** into it.
+Let's imagine you say **"I don't want `pip install`, I want to donwload this repo and run code. How can I do this?"**
 
-Run in the shell:
+Solution 1:
 ```bash
-python3 main.py --help
-# equivalent to:
-# PySimpleGUIDesigner --help
+# removing (if installed) PySimpleGUIDesigner:
+pip uninstall -y PySimpleGUIDesigner
+
+mkdir psgdesigner
+cd psgdesigner
+git clone https://github.com/nngogol/PySimpleGUIDesigner
+python3 -m PySimpleGUIDesigner
+# NOTE for Windows users: replace "python3"   with   "python" OR "py"
+
+# ALSO, output "help" by:
+# $ python3 -m PySimpleGUIDesigner --help
 ```
 
-If you see this error:
-
-`ModuleNotFoundError: No module named '__main__.transpiler2'; '__main__' is not a package`
-
-THEN just **change** in `main.py` line `from .transpiler2 import *` to `from transpiler2 import *`
-
+Solution 2:
+```bash
+mkdir psgdesigner
+cd psgdesigner
+git clone https://github.com/nngogol/PySimpleGUIDesigner
+cd PySimpleGUIDesigner
+python3 -m main_for_devel.py
+# for Windows users: replace "python3"   with   "python" OR "py"
+```
 ----
-----
 
-
-# Examples:
+# Examples (fun part)
 
 ##### Using as normal (easy):
 ```bash
 python3 main.py --xmlfile="~/folder1/test.ui" --objname="somegroupBox"
-# OR
+# a bit shorter command:
 python3 main.py -xml "~/folder1/test.ui" -ob "somegroupBox"
 ```
 
-##### 
-I like to use `watch` command. Next command will *compile* every **3 second** and **output to the screen**:
+#### hot-reloader trick For Unix-like OS
+
+I like to use `watch` command.
+This command will *compile* every **3 second** and **output to the screen**:
 ```bash
 watch -n 3 PySimpleGUIDesigner -xml "~/folder1/test.ui" -ob somegroupBox
 ```
 
-##### Redirect
-Use (bash) redirect (OR `-o` option):
+also, there is an `entr` command (install by `apt install entr`), which works even better. It makes you command, when file is changed:
+
+This command will *compile* file `~/folder1/test.ui`, when you change it(like you hit `ctrl+s` to save layout in .ui file):
+```bash
+echo "~/folder1/test.ui" | entr -p -s 'PySimpleGUIDesigner -xml "~/folder1/test.ui" -ob somegroupBox'
+```
+
+If you are on Windows OS without bash, then PySimpleGUIDesigner has build-it hot-reloader! So, use it, if you need.
+
+##### Redirect output
+Use bash redirect (or `-o` option):
 ```bash
 PySimpleGUIDesigner -xml untitled.ui -ob v1 > untitled.py
 PySimpleGUIDesigner -xml untitled.ui -ob v1 -o untitled.py
 ```
 
-##### *(You can use auto-update in GUI)*
-
-
-
-
 ## More Examples:
 
 ```bash
 #=================== Basics:
-### relative path
+### using relative path:
 python3 main.py -xmlfile "untitled.ui" -objname="text1"
 python3 main.py -xmlfile "examples_of_ui/untitled.ui" -objname="vv1"
-### absolute path
+
+### using absolute path:
 python3 main.py -xmlfile "/tmp/examples_of_ui/untitled.ui" -objname="text1"
 
 #=================== Indent:
 # ia = indent amount, ic = indent char
+# indent 1:
 python3 main.py -xmlfile "untitled.ui" -objname="text1" -ic " "
 python3 main.py -xmlfile "untitled.ui" -objname="text1" -ic " " -ia 1 # the same effect, as command above
-
+# indent 2:
 python3 main.py -xmlfile "untitled.ui" -objname="text1" -ic " " -ia 2
-
 
 ### add boilerplate to output file
 python3 main.py -xmlfile "untitled.ui" -objname="text1" -pp_mouse -ic " " -ia 2
 python3 main.py -xmlfile "untitled.ui" -objname="text1" -pp_keys
 python3 main.py -xmlfile "untitled.ui" -objname="text1" -ic " " -ia 2 -pp_keys
-
 ```
 
----
+## Gogol, HELP me! I don't know what I'm doing!
+
+Keep calm. I will try to help you.
+
+Really do *super easy* thing - "Open Issue" in this repository: https://github.com/nngogol/PySimpleGUIDesigner/issues
 
 ## Todo
 
-Possible:
-- improve `psg_ui_maker.py` - somewhere in `__init__` method, maybe;
+- [done] xml -> py
+- [interesting] psg code -> xml
 - add some `picking templates` for user
 - add some `boilerplate`'s in output generated code
-- maybe some unit tests, idk. `pytest`?
-
-
-## FAQ
-
-How do I use PySimpleGUIDesigner WITH Qt Designer?
-Watch this video (by me):
-
-https://www.youtube.com/watch?v=dN7gXwnNoBA
+- unit tests, `pytest`?
