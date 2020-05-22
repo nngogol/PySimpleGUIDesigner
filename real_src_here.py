@@ -1,5 +1,13 @@
 #!/usr/bin/python3
-from all_in_one_imports import *
+# copy paste from all_in_one_imports
+# from all_in_one_imports import *
+from re import compile as make_regex, finditer, MULTILINE
+import re, json, random, click, json, os, re, sys, subprocess
+from platform import system as gimme_system
+from shutil import copy as copyfile
+import PySimpleGUI as sg
+from hashlib import sha256
+
 cd = os.path.dirname(os.path.abspath(__file__))
 
 def file_hash(file_path):
