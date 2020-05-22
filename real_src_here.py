@@ -672,6 +672,7 @@ def run_gui():
             change_language()
     window.close()
 
+
 @click.command()
 @click.option('-v', '--verbose', default=False, is_flag=True, help='Verbose mode')
 @click.option('-xml', '--xmlfile', type=click.Path(exists=True), help='absolute or relative path to ui_file')
