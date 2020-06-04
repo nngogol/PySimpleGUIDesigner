@@ -1,9 +1,8 @@
 # PySimpleGUI Designer
 
-![designer](https://github.com/nngogol/PySimpleGUIDesigner/blob/master/2020-04-19---14-52-26.png)
+In this video I explain how to use QtDesigner + my software video (by me): https://www.youtube.com/watch?v=dN7gXwnNoBA
+![designer](https://github.com/nngogol/PySimpleGUIDesigner/blob/master/gif.gif)
 
-How do I use PySimpleGUIDesigner WITH Qt Designer?
-Watch this video (by me): https://www.youtube.com/watch?v=dN7gXwnNoBA
 
 
 ## Install:
