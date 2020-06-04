@@ -1,8 +1,10 @@
 # PySimpleGUI Designer
 
-In this video I explain how to use QtDesigner + my software video (by me): https://www.youtube.com/watch?v=dN7gXwnNoBA
+
 ![designer](https://github.com/nngogol/PySimpleGUIDesigner/blob/master/gif.gif)
 
+### Watch this video
+In this video I explain how to use QtDesigner + my software video (by me): https://www.youtube.com/watch?v=dN7gXwnNoBA
 
 
 ## Install:
